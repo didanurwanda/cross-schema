@@ -1,0 +1,53 @@
+{
+  "name": "cross-schema",
+  "description": "Cross-database schema inspector for Node.js. Retrieve unified metadata for tables, columns, indexes, enums, and more across MySQL, PostgreSQL, SQLite, and SQL Server.",
+  "version": "1.0.0",
+  "author": "Dida Nurwanda <didanurwanda@gmail.com>",
+  "license": "MPL-2.0",
+  "type": "module",
+  "main": "./dist/index.cjs",
+  "exports": {
+    "import": "./dist/index.js",
+    "require": "./dist/index.cjs"
+  },
+  "types": "./dist/index.d.ts",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "build": "tsup src/index.js --format esm,cjs --dts --out-dir dist"
+  },
+  "keywords": [
+    "database",
+    "schema",
+    "metadata",
+    "orm",
+    "dbal",
+    "knex",
+    "mysql",
+    "postgresql",
+    "sqlite",
+    "sqlserver",
+    "typescript",
+    "schema-inspector",
+    "introspection"
+  ],
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/didanurwanda/cross-schema"
+  },
+  "bugs": {
+    "url": "https://github.com/didanurwanda/cross-schema/issues"
+  },
+  "homepage": "https://github.com/didanurwanda/cross-schema#readme",
+  "files": [
+    "dist",
+    "src",
+    "examples"
+  ],
+  "devDependencies": {
+    "tsup": "^8.5.0",
+    "typescript": "^5.8.3"
+  },
+  "dependencies": {
+    "knex": "^3.1.0"
+  }
+}

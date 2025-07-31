@@ -1,0 +1,222 @@
+# CrossSchema
+
+**CrossSchema** is a cross-platform database schema introspection library built on top of [Knex.js](https://knexjs.org/). It allows you to retrieve schema metadata such as databases, tables, columns, primary keys, foreign keys, enums, and more — using a unified API across multiple relational database platforms.
+
+> Supports: **MySQL**, **PostgreSQL**, **SQLite**, **SQL Server**, **Oracle DB (soon)**
+
+---
+
+## Features
+
+- Unified interface for schema inspection  
+- Plug-and-play Knex instance injection  
+- Detailed column metadata: type, default, nullability, precision, autoincrement, enum values, etc.  
+- Works with modern versions of major SQL databases  
+- Discover primary keys, foreign keys, and constraints 
+- Lightweight, no runtime dependencies except Knex 
+- Zero dependencies beyond Knex  
+- Suitable for CLI tools, GUI database tools, code generators, and migrations  
+
+---
+
+## Supported Databases
+
+| Database            | NPM Package |
+|---------------------|-------------|
+| MySQL               | `mysql2`    |
+| PostgreSQL          | `pg`        |
+| SQLite              | `sqlite3`   |
+| SQL Server          | `tedious`   |
+| Oracle DB (soon)    | `oracledb`  |
+
+---
+
+## Installation
+
+```bash
+npm install cross-schema
+```
+
+
+> Requires `knex` and the appropriate database client (e.g. `mysql2`, `pg`, `sqlite3`, `tedious`, `oracledb`).
+
+---
+## How to Usage
+
+```js
+import knex from 'knex';
+import { CrossSchema } from 'cross-schema';
+
+const db = knex({
+  client: 'mysql2',
+  connection: {
+    host: 'localhost',
+    user: 'root',
+    password: '',
+    database: 'test_db'
+  }
+});
+
+const cs = new CrossSchema(db);
+
+// List database
+const schemas = await cs.listDatabases();
+
+// List tables
+const tables = await cs.listTables();
+
+// List views
+const views = await cs.listViews();
+
+// List columns
+const columns = await cs.listColumns('table_name');
+
+// List indexes
+const indexes = await cs.listIndexes('table_name');
+
+// List foreign keys
+const fks = await cs.listConstraints('table_name');
+
+// Get table schema
+const tableSchema = await cs.getTableSchema('table_name');
+
+// Get database version
+const version = await cs.getDatabaseVersion();
+```
+
+---
+
+## API Reference
+
+#### `constructor(knexClient)`
+- Initializes the CrossSchema with a Knex client instance.
+
+#### `listDatabases(): Promise<string[]>`
+- Get a list of databases in the given connection
+
+#### `listTables(schema?: string): Promise<string[]>`
+- Get a list of tables in the specified schema
+
+#### `listViews(schema?: string): Promise<string[]>`
+- Get a list of views in the specified schema
+
+#### `listColumns(table: string, schema?: string): Promise<ColumnInfo[]>`
+- Retrieves detailed information about all columns in a given table.
+
+#### `listIndexes(table: string, schema?: string): Promise<IndexInfo[]>`
+- Retrieves index definitions from the specified table and schema.
+
+#### `listConstraints(table: string, schema?: string): Promise<ConstraintInfo[]>`
+- Retrieves foreign key constraints from a specific table.
+
+#### `getTableSchema(table: string, schema?: string): Promise<Schema[]>`
+- Retrieves the complete schema definition for a specific table, including:  column metadata, primary key(s), auto-increment column, foreign keys (if any)
+
+#### `getDatabaseVersion(): Promise<string>`
+- Get the version of the connected database
+
+---
+
+## Output Formats
+
+#### ColumnInfo
+```js
+{
+  name: string,
+  allowNull: boolean,
+  autoIncrement: boolean,
+  comment: string,
+  dbType: string,
+  defaultValue: any,
+  enumValues: string[],
+  isPrimaryKey: boolean,
+  type: string,
+  precision: number|null,
+  scale: number|null,
+  size: number|null,
+  unsigned: boolean
+}
+```
+
+#### IndexInfo
+```js
+{
+  name: string,              // Index name defined in the database
+  column_name: string,       // Column name the index refers to
+  index_is_unique: boolean,  // Whether the index enforces uniqueness
+  index_is_primary: boolean
+}
+```
+
+#### ConstraintInfo
+```js
+{
+  constraintName: string,
+  columnName: string,
+  referencedTableName: string,
+  referencedColumnName: string
+}
+```
+
+#### Schema
+```js
+{
+  schemaName: string,
+  tableName: string,
+  primaryKeys: string[],
+  sequenceName: string|null,
+  foreignKeys: Array<any>,
+  columns: ColumnInfo[]
+}
+```
+---
+
+## Contributing
+
+Thank you for considering contributing to CrossSchema!
+
+To contribute:
+
+1. Fork this repository.
+2. Clone your fork:
+   ```bash
+   git clone https://github.com/didanurwanda/cross-schema.git
+   cd cross-schema
+   ```
+3. Install dependencies:
+   ```bash
+   npm install
+   ```
+4. Make your changes in `src/` folder.
+5. Build the library:
+   ```bash
+   npm run build
+   ```
+6. Make sure the changes are working by running the example or writing tests.
+7. Commit and push your changes, then open a Pull Request.
+
+> **Note**: Do not edit files in the `dist/` folder manually. The build artifacts are generated by `tsup` and will be regenerated before publishing.
+
+---
+
+### Development Scripts
+
+| Command          | Description                     |
+|------------------|---------------------------------|
+| `npm install`     | Install all dependencies         |
+| `npm run build`   | Build the library to `/dist`     |
+
+---
+
+## Author
+
+Created and maintained by **Dida Nurwanda**  
+[didanurwanda@gmail.com](mailto:didanurwanda@gmail.com)
+
+CrossSchema is part of a broader effort to simplify metadata handling in backend tooling and developer utilities.
+
+---
+
+## License
+
+This project is licensed under the [**MPL-2.0**](https://www.mozilla.org/en-US/MPL/2.0/). See the [LICENSE](./LICENSE) file for more details.
