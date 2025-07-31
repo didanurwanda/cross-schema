@@ -1,7 +1,7 @@
 {
   "name": "cross-schema",
   "description": "Cross-database schema inspector for Node.js. Retrieve unified metadata for tables, columns, indexes, enums, and more across MySQL, PostgreSQL, SQLite, and SQL Server.",
-  "version": "1.0.0",
+  "version": "1.0.5",
   "author": "Dida Nurwanda <didanurwanda@gmail.com>",
   "license": "MPL-2.0",
   "type": "module",
