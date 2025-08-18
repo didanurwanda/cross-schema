@@ -1,4 +1,3 @@
-
 import knex from 'knex';
 import CrossSchema from '../src/index.js';
 
@@ -11,7 +10,7 @@ const db = knex({
 });
 
 (async () => {
-  const cs = new CrossSchema({ platform: 'sqlite3', client: db });
+  const cs = new CrossSchema('sqlite3', db);
 
   try {
     // Uncomment sesuai kebutuhan:

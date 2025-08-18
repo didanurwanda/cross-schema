@@ -8,26 +8,26 @@
 
 ## Features
 
-- Unified interface for schema inspection  
-- Plug-and-play Knex instance injection  
-- Detailed column metadata: type, default, nullability, precision, autoincrement, enum values, etc.  
-- Works with modern versions of major SQL databases  
-- Discover primary keys, foreign keys, and constraints 
-- Lightweight, no runtime dependencies except Knex 
-- Zero dependencies beyond Knex  
-- Suitable for CLI tools, GUI database tools, code generators, and migrations  
+- Unified interface for schema inspection
+- Plug-and-play Knex instance injection
+- Detailed column metadata: type, default, nullability, precision, autoincrement, enum values, etc.
+- Works with modern versions of major SQL databases
+- Discover primary keys, foreign keys, and constraints
+- Lightweight, no runtime dependencies except Knex
+- Zero dependencies beyond Knex
+- Suitable for CLI tools, GUI database tools, code generators, and migrations
 
 ---
 
 ## Supported Databases
 
-| Database            | NPM Package |
-|---------------------|-------------|
-| MySQL               | `mysql2`    |
-| PostgreSQL          | `pg`        |
-| SQLite              | `sqlite3`   |
-| SQL Server          | `tedious`   |
-| Oracle DB (soon)    | `oracledb`  |
+| Database         | NPM Package |
+| ---------------- | ----------- |
+| MySQL            | `mysql2`    |
+| PostgreSQL       | `pg`        |
+| SQLite           | `sqlite3`   |
+| SQL Server       | `tedious`   |
+| Oracle DB (soon) | `oracledb`  |
 
 ---
 
@@ -37,15 +37,15 @@
 npm install cross-schema
 ```
 
-
 > Requires `knex` and the appropriate database client (e.g. `mysql2`, `pg`, `sqlite3`, `tedious`, `oracledb`).
 
 ---
+
 ## How to Usage
 
 ```js
 import knex from 'knex';
-import { CrossSchema } from 'cross-schema';
+import CrossSchema from 'cross-schema';
 
 const db = knex({
   client: 'mysql2',
@@ -53,11 +53,11 @@ const db = knex({
     host: 'localhost',
     user: 'root',
     password: '',
-    database: 'test_db'
-  }
+    database: 'test_db',
+  },
 });
 
-const cs = new CrossSchema(db);
+const cs = new CrossSchema('mysql', db);
 
 // List database
 const schemas = await cs.listDatabases();
@@ -89,30 +89,39 @@ const version = await cs.getDatabaseVersion();
 ## API Reference
 
 #### `constructor(knexClient)`
+
 - Initializes the CrossSchema with a Knex client instance.
 
 #### `listDatabases(): Promise<string[]>`
+
 - Get a list of databases in the given connection
 
 #### `listTables(schema?: string): Promise<string[]>`
+
 - Get a list of tables in the specified schema
 
 #### `listViews(schema?: string): Promise<string[]>`
+
 - Get a list of views in the specified schema
 
 #### `listColumns(table: string, schema?: string): Promise<ColumnInfo[]>`
+
 - Retrieves detailed information about all columns in a given table.
 
 #### `listIndexes(table: string, schema?: string): Promise<IndexInfo[]>`
+
 - Retrieves index definitions from the specified table and schema.
 
 #### `listConstraints(table: string, schema?: string): Promise<ConstraintInfo[]>`
+
 - Retrieves foreign key constraints from a specific table.
 
 #### `getTableSchema(table: string, schema?: string): Promise<Schema[]>`
-- Retrieves the complete schema definition for a specific table, including:  column metadata, primary key(s), auto-increment column, foreign keys (if any)
+
+- Retrieves the complete schema definition for a specific table, including: column metadata, primary key(s), auto-increment column, foreign keys (if any)
 
 #### `getDatabaseVersion(): Promise<string>`
+
 - Get the version of the connected database
 
 ---
@@ -120,6 +129,7 @@ const version = await cs.getDatabaseVersion();
 ## Output Formats
 
 #### ColumnInfo
+
 ```js
 {
   name: string,
@@ -127,10 +137,11 @@ const version = await cs.getDatabaseVersion();
   autoIncrement: boolean,
   comment: string,
   dbType: string,
+  type: string,
+  rawType: string,
   defaultValue: any,
   enumValues: string[],
   isPrimaryKey: boolean,
-  type: string,
   precision: number|null,
   scale: number|null,
   size: number|null,
@@ -139,6 +150,7 @@ const version = await cs.getDatabaseVersion();
 ```
 
 #### IndexInfo
+
 ```js
 {
   name: string,              // Index name defined in the database
@@ -149,6 +161,7 @@ const version = await cs.getDatabaseVersion();
 ```
 
 #### ConstraintInfo
+
 ```js
 {
   constraintName: string,
@@ -159,16 +172,18 @@ const version = await cs.getDatabaseVersion();
 ```
 
 #### Schema
+
 ```js
 {
   schemaName: string,
   tableName: string,
   primaryKeys: string[],
   sequenceName: string|null,
-  foreignKeys: Array<any>,
+  foreignKeys: ConstraintInfo[],
   columns: ColumnInfo[]
 }
 ```
+
 ---
 
 ## Contributing
@@ -201,10 +216,10 @@ To contribute:
 
 ### Development Scripts
 
-| Command          | Description                     |
-|------------------|---------------------------------|
-| `npm install`     | Install all dependencies         |
-| `npm run build`   | Build the library to `/dist`     |
+| Command         | Description                  |
+| --------------- | ---------------------------- |
+| `npm install`   | Install all dependencies     |
+| `npm run build` | Build the library to `/dist` |
 
 ---
 

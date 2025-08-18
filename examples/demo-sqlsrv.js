@@ -11,13 +11,13 @@ const db = knex({
     database: 'sabilulhuromain',
     options: {
       encrypt: false, // jika tidak pakai enkripsi TLS
-      enableArithAbort: true
-    }
-  }
+      enableArithAbort: true,
+    },
+  },
 });
 
 (async () => {
-  const cs = new CrossSchema({ platform: 'mssql', client: db });
+  const cs = new CrossSchema('mssql', db);
 
   try {
     // Uncomment sesuai kebutuhan:

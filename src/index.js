@@ -1,10 +1,17 @@
-export default class CrossSchema {
+import mysql from './platforms/mysql.js';
+import postgres from './platforms/postgres.js';
+import sqlite from './platforms/sqlite.js';
+import sqlsrv from './platforms/sqlsrv.js';
+
+class CrossSchema {
   /**
-   * @param {Object} config
-   * @param {'mysql'|'pgsql'|'sqlite'|'sqlsrv'} config.platform
-   * @param {Knex} config.client
+   * Constructs a new CrossSchema instance.
+   *
+   * @param {Object} config - The configuration object.
+   * @param {'mysql'|'pgsql'|'sqlite'|'sqlsrv'} config.platform - The platform to use.
+   * @param {Knex} config.client - The Knex client instance.
    */
-  constructor({ platform, client }) {
+  constructor(platform, client) {
     const platformMap = {
       mysql2: 'mysql',
       mariadb: 'mysql',
@@ -14,6 +21,7 @@ export default class CrossSchema {
       mssql: 'sqlsrv',
       sqlserver: 'sqlsrv',
       tedious: 'sqlsrv',
+      sqlsrv: 'sqlsrv',
       sqlite3: 'sqlite',
       'better-sqlite3': 'sqlite',
     };
@@ -31,8 +39,19 @@ export default class CrossSchema {
   async _loadDriver() {
     if (!this.driver) {
       try {
-        const module = await import(`./platforms/${this.platform}.js`);
-        this.driver = module.default;
+        if (!this.platform) {
+          throw new Error('No platform specified');
+        } else if (this.platform === 'mysql') {
+          this.driver = mysql;
+        } else if (this.platform === 'postgres') {
+          this.driver = postgres;
+        } else if (this.platform === 'sqlite') {
+          this.driver = sqlite;
+        } else if (this.platform === 'sqlsrv') {
+          this.driver = sqlsrv;
+        } else {
+          throw new Error(`Unsupported platform: ${this.platform}`);
+        }
       } catch {
         throw new Error(`Unsupported platform: ${this.platform}`);
       }
@@ -204,7 +223,7 @@ export default class CrossSchema {
     );
   }
 
- /**
+  /**
    * Retrieves the complete schema definition for a specific table, including:
    * - Column metadata (name, type, size, nullability, default, enum, etc.)
    * - Primary key(s)
@@ -266,3 +285,5 @@ export default class CrossSchema {
     );
   }
 }
+
+export default CrossSchema;

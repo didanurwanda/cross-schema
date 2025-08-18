@@ -7,12 +7,12 @@ const db = knex({
     host: '127.0.0.1',
     user: 'root',
     password: 'root',
-    database: 'sabilulhuromain' // Tidak perlu ditentukan kalau ingin cek banyak database
-  }
+    database: 'sabilulhuromain', // Tidak perlu ditentukan kalau ingin cek banyak database
+  },
 });
 
 (async () => {
-  const cs = new CrossSchema({ platform: 'mysql', client: db });
+  const cs = new CrossSchema('mysql', db);
 
   try {
     // Uncomment sesuai kebutuhan:

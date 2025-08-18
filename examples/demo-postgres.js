@@ -7,12 +7,12 @@ const db = knex({
     host: '127.0.0.1',
     user: 'postgres',
     password: 'postgres',
-    database: 'sabilulhuromain' // Ganti dengan nama database yang ingin digunakan
-  }
+    database: 'sabilulhuromain', // Ganti dengan nama database yang ingin digunakan
+  },
 });
 
 (async () => {
-  const cs = new CrossSchema({ platform: 'postgres', client: db });
+  const cs = new CrossSchema('postgres', db);
 
   try {
     // Uncomment sesuai kebutuhan:
