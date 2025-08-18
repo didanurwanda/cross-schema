@@ -29,7 +29,6 @@ async function listViews(knex, schema) {
 }
 
 async function listColumns(knex, table, schema) {
-
   const rows = await knex('information_schema.columns')
     .select(
       'COLUMN_NAME',
@@ -138,11 +137,12 @@ async function getTableSchema(knex, table, schema) {
     .map((idx) => idx.column_name);
 
   return {
-    schemaName: schema || await getDatabaseName(knex),
+    schemaName: schema || (await getDatabaseName(knex)),
     tableName: table,
     primaryKeys,
     sequenceName,
     foreignKeys,
+    indexes: indexes.filter((idx) => !idx.index_is_primary),
     columns,
   };
 }

@@ -221,6 +221,7 @@ async function getTableSchema(knex, table, schema = 'public') {
     primaryKeys,
     sequenceName,
     foreignKeys,
+    indexes: indexes.filter((idx) => !idx.index_is_primary),
     columns,
   };
 }

@@ -179,6 +179,7 @@ const version = await cs.getDatabaseVersion();
   tableName: string,
   primaryKeys: string[],
   sequenceName: string|null,
+  indexes: IndexInfo[],
   foreignKeys: ConstraintInfo[],
   columns: ColumnInfo[]
 }
