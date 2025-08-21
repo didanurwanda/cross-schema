@@ -76,7 +76,7 @@ async function listColumns(knex, table, schema) {
   return rows.map((col) => {
     const dbTypeRaw = col.type ? col.type.toLowerCase().split('(')[0] : 'text';
     const dbType = SQLSRV_TYPES[dbTypeRaw] || 'STRING';
-    const type = GENERAL_TYPES[dbType] || 'string';
+    const type = GENERAL_TYPES[dbType.toUpperCase()] || 'string';
 
     return {
       name: col.column_name,

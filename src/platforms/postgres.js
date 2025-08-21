@@ -122,7 +122,7 @@ CASE
   return result.rows.map((col) => {
     const dbTypeRaw = col.data_type.toLowerCase();
     const dbType = POSTGRES_MAP[dbTypeRaw] || 'STRING';
-    const type = GENERAL_TYPES[dbType] || 'string';
+    const type = GENERAL_TYPES[dbType.toUpperCase()] || 'string';
 
     if (col.sequence_name != null) {
       sequenceName = col.sequence_name;

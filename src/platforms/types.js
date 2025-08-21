@@ -175,10 +175,31 @@ export const SQLSRV_TYPES = {
   table: 'STRING',
 };
 export const GENERAL_TYPES = {
-  integer: ['TINYINT', 'SMALLINT', 'INTEGER', 'BIGINT'],
-  boolean: ['BOOLEAN'],
-  double: ['FLOAT', 'DOUBLE', 'DECIMAL'],
-  string: ['STRING', 'TEXT', 'CHAR'],
-  resource: ['BINARY'],
-  array: ['JSON'],
+  STRING: 'string',
+  TEXT: 'string',
+  CHAR: 'string',
+
+  INTEGER: 'integer',
+  SMALLINT: 'integer',
+  BIGINT: 'integer',
+  TINYINT: 'integer',
+
+  FLOAT: 'float',
+  DOUBLE: 'float',
+  REAL: 'float',
+  DECIMAL: 'float',
+  NUMERIC: 'float',
+  MONEY: 'float',
+
+  BOOLEAN: 'boolean',
+
+  DATE: 'date',
+  DATETIME: 'datetime',
+  TIMESTAMP: 'timestamp',
+  TIME: 'time',
+
+  JSON: 'string',
+
+  BLOB: 'string',
+  BINARY: 'string',
 };
