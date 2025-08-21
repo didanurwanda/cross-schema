@@ -45,7 +45,8 @@ async function listColumns(knex, table, schema) {
       'COLUMN_TYPE'
     )
     .where('table_schema', schema || knex.raw('DATABASE()'))
-    .andWhere('table_name', table);
+    .andWhere('table_name', table)
+    .orderBy('ORDINAL_POSITION', 'ASC');
 
   return rows.map((col) => {
     const dbTypeRaw = col.DATA_TYPE.toLowerCase();
