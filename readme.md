@@ -154,7 +154,7 @@ const version = await cs.getDatabaseVersion();
 ```js
 {
   name: string,              // Index name defined in the database
-  column_name: string,       // Column name the index refers to
+  columnName: string,       // Column name the index refers to
   isUnique: boolean,  // Whether the index enforces uniqueness
   isPrimaryKey: boolean,
   indexType: string
