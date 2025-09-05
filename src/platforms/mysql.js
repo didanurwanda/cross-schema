@@ -78,17 +78,19 @@ async function listIndexes(knex, table, schema) {
       knex.raw('COLUMN_NAME as column_name'),
       knex.raw('INDEX_NAME as index_name'),
       knex.raw('NOT non_unique AS index_is_unique'),
-      knex.raw("index_name = 'PRIMARY' AS index_is_primary")
+      knex.raw("index_name = 'PRIMARY' AS index_is_primary"),
+      knex.raw('INDEX_TYPE as index_type')
     )
     .where('table_schema', schema || knex.raw('DATABASE()'))
     .andWhere('index_schema', schema || knex.raw('DATABASE()'))
     .andWhere('table_name', table);
 
   return rows.map((row) => ({
-    column_name: row.column_name,
+    columnName: row.column_name,
     name: row.index_name,
-    index_is_unique: !!row.index_is_unique,
-    index_is_primary: !!row.index_is_primary,
+    isUnique: !!row.index_is_unique,
+    isPrimaryKey: !!row.index_is_primary,
+    indexType: row.index_type,
   }));
 }
 
@@ -99,6 +101,8 @@ async function listConstraints(knex, table, schema) {
       'kcu.column_name as column_name',
       'kcu.referenced_table_name as referenced_table_name',
       'kcu.referenced_column_name as referenced_column_name',
+      'rc.update_rule as on_update',
+      'rc.delete_rule as on_delete',
     ])
     .from('information_schema.referential_constraints as rc')
     .join('information_schema.key_column_usage as kcu', function () {
@@ -117,7 +121,16 @@ async function listConstraints(knex, table, schema) {
     .andWhere('rc.table_name', '=', table)
     .andWhere('kcu.table_name', '=', table);
 
-  return rows;
+  return rows.map((row) => {
+    return {
+      constraintName: row.constraint_name,
+      columnName: row.column_name,
+      referencedTableName: row.referenced_table_name,
+      referencedColumnName: row.referenced_column_name,
+      onUpdate: row.on_update,
+      onDelete: row.on_delete,
+    };
+  });
 }
 
 async function getTableSchema(knex, table, schema) {
@@ -134,8 +147,8 @@ async function getTableSchema(knex, table, schema) {
   }
 
   const primaryKeys = indexes
-    .filter((idx) => idx.index_is_primary)
-    .map((idx) => idx.column_name);
+    .filter((idx) => idx.isPrimaryKey)
+    .map((idx) => idx.columnName);
 
   return {
     schemaName: schema || (await getDatabaseName(knex)),
@@ -143,7 +156,7 @@ async function getTableSchema(knex, table, schema) {
     primaryKeys,
     sequenceName,
     foreignKeys,
-    indexes: indexes.filter((idx) => !idx.index_is_primary),
+    indexes: indexes.filter((idx) => !idx.isPrimaryKey),
     columns,
   };
 }

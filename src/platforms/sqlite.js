@@ -62,10 +62,11 @@ async function listIndexes(knex, table, schema) {
     const indexInfo = await knex.raw(`PRAGMA index_info(${idx.name})`);
     for (const info of indexInfo) {
       indexes.push({
-        column_name: info.name,
+        columnName: info.name,
         name: idx.name,
-        index_is_unique: idx.unique === 1,
-        index_is_primary: idx.name === 'sqlite_autoindex_' + table + '_1',
+        isUnique: idx.unique === 1,
+        isPrimaryKey: idx.name === 'sqlite_autoindex_' + table + '_1',
+        indexType: 'BTREE',
       });
     }
   }
@@ -76,10 +77,12 @@ async function listIndexes(knex, table, schema) {
 async function listConstraints(knex, table, schema) {
   const rows = await knex.raw(`PRAGMA foreign_key_list(${table})`);
   return rows.map((row) => ({
-    constraint_name: null, // SQLite tidak punya nama constraint FK
-    column_name: row.from,
-    referenced_table_name: row.table,
-    referenced_column_name: row.to,
+    constraintName: null, // SQLite tidak punya nama constraint FK
+    columnName: row.from,
+    referencedTableName: row.table,
+    referencedColumnName: row.to,
+    onUpdate: row.on_update,
+    onDelete: row.on_delete,
   }));
 }
 
@@ -97,8 +100,8 @@ async function getTableSchema(knex, table, schema) {
   }
 
   let primaryKeys = indexes
-    .filter((idx) => idx.index_is_primary)
-    .map((idx) => idx.column_name);
+    .filter((idx) => idx.isPrimaryKey)
+    .map((idx) => idx.columnName);
 
   if (primaryKeys.length === 0) {
     primaryKeys = columns
@@ -112,7 +115,7 @@ async function getTableSchema(knex, table, schema) {
     primaryKeys,
     sequenceName,
     foreignKeys,
-    indexes: indexes.filter((idx) => !idx.index_is_primary),
+    indexes: indexes.filter((idx) => !idx.isPrimaryKey),
     columns,
   };
 }

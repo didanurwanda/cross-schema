@@ -118,15 +118,17 @@ async function listIndexes(knex, table, schema) {
       column_name: 'iccol.name',
       index_is_unique: 'i.is_unique',
       index_is_primary: 'i.is_primary_key',
+      index_type: 'i.type_desc',
     })
     .whereRaw('i.object_id = OBJECT_ID(?)', [table])
     .orderBy('ic.key_ordinal', 'asc');
 
   return rows.map((row) => ({
-    column_name: row.column_name,
+    columnName: row.column_name,
     name: row.name,
-    index_is_unique: row.index_is_unique == 1,
-    index_is_primary: row.index_is_primary == 1,
+    isUnique: row.index_is_unique == 1,
+    isPrimaryKey: row.index_is_primary == 1,
+    indexType: row.index_type,
   }));
 }
 
@@ -137,7 +139,9 @@ async function listConstraints(knex, table, schema) {
         [fk].[name] AS [fk_name],
         [cp].[name] AS [fk_column_name],
         OBJECT_NAME([fk].[referenced_object_id]) AS [uq_table_name],
-        [cr].[name] AS [uq_column_name]
+        [cr].[name] AS [uq_column_name],
+        [fk].[update_referential_action_desc] AS [on_update],
+        [fk].[delete_referential_action_desc] AS [on_delete]
       FROM [sys].[foreign_keys] AS [fk]
       INNER JOIN [sys].[foreign_key_columns] AS [fkc]
         ON [fk].[object_id] = [fkc].[constraint_object_id]
@@ -153,10 +157,12 @@ async function listConstraints(knex, table, schema) {
   );
 
   return rows.map((row) => ({
-    constraint_name: row.fk_name, // SQLite tidak punya nama constraint FK
-    column_name: row.fk_column_name,
-    referenced_table_name: row.uq_table_name,
-    referenced_column_name: row.uq_column_name,
+    constraintName: row.fk_name, // SQLite tidak punya nama constraint FK
+    columnName: row.fk_column_name,
+    referencedTableName: row.uq_table_name,
+    referencedColumnName: row.uq_column_name,
+    onUpdate: row.on_update,
+    onDelete: row.on_delete,
   }));
 }
 
@@ -174,8 +180,8 @@ async function getTableSchema(knex, table, schema) {
   }
 
   let primaryKeys = indexes
-    .filter((idx) => idx.index_is_primary)
-    .map((idx) => idx.column_name);
+    .filter((idx) => idx.isPrimaryKey)
+    .map((idx) => idx.columnName);
 
   if (primaryKeys.length === 0) {
     primaryKeys = columns
@@ -189,7 +195,7 @@ async function getTableSchema(knex, table, schema) {
     primaryKeys,
     sequenceName,
     foreignKeys,
-    indexes: indexes.filter((idx) => !idx.index_is_primary),
+    indexes: indexes.filter((idx) => !idx.isPrimaryKey),
     columns,
   };
 }

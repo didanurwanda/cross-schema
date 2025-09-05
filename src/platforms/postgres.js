@@ -154,11 +154,13 @@ async function listIndexes(knex, table, schema = 'public') {
       i.relname AS index_name,
       a.attname AS column_name,
       ix.indisunique AS index_is_unique,
-      ix.indisprimary AS index_is_primary
+      ix.indisprimary AS index_is_primary,
+      pg_am.amname AS index_type
     FROM pg_class t
     JOIN pg_index ix ON t.oid = ix.indrelid
     JOIN pg_class i ON i.oid = ix.indexrelid
     JOIN pg_attribute a ON a.attrelid = t.oid AND a.attnum = ANY(ix.indkey)
+    JOIN pg_am ON i.relam = pg_am.oid
     WHERE t.relname = ?
       AND t.relnamespace = (
         SELECT oid FROM pg_namespace WHERE nspname = ?
@@ -168,10 +170,11 @@ async function listIndexes(knex, table, schema = 'public') {
   );
 
   return result.rows.map((row) => ({
-    column_name: row.column_name,
+    columnName: row.column_name,
     name: row.index_name,
-    index_is_unique: row.index_is_unique,
-    index_is_primary: row.index_is_primary,
+    isUnique: row.index_is_unique == 't',
+    isPrimaryKey: row.index_is_primary == 't',
+    indexType: row.index_type,
   }));
 }
 
@@ -182,7 +185,33 @@ async function listConstraints(knex, table, schema = 'public') {
       tc.constraint_name,
       kcu.column_name,
       ccu.table_name AS referenced_table_name,
-      ccu.column_name AS referenced_column_name
+      ccu.column_name AS referenced_column_name,
+      CASE
+          co.confupdtype 
+          WHEN 'a' THEN
+          'NO ACTION' 
+          WHEN 'r' THEN
+          'RESTRICT' 
+          WHEN 'c' THEN
+          'CASCADE' 
+          WHEN 'n' THEN
+          'SET NULL' 
+          WHEN 'd' THEN
+          'SET DEFAULT' ELSE'UNKNOWN' 
+        END AS on_update,
+      CASE
+          co.confdeltype 
+          WHEN 'a' THEN
+          'NO ACTION' 
+          WHEN 'r' THEN
+          'RESTRICT' 
+          WHEN 'c' THEN
+          'CASCADE' 
+          WHEN 'n' THEN
+          'SET NULL' 
+          WHEN 'd' THEN
+          'SET DEFAULT' ELSE'UNKNOWN' 
+        END AS on_delete
     FROM information_schema.table_constraints tc
     JOIN information_schema.key_column_usage kcu
       ON tc.constraint_name = kcu.constraint_name
@@ -190,6 +219,7 @@ async function listConstraints(knex, table, schema = 'public') {
     JOIN information_schema.constraint_column_usage ccu
       ON ccu.constraint_name = tc.constraint_name
       AND ccu.table_schema = tc.table_schema
+  	JOIN pg_constraint co ON co.conname = tc.constraint_name
     WHERE tc.constraint_type = 'FOREIGN KEY'
       AND tc.table_name = ?
       AND tc.table_schema = ?
@@ -197,7 +227,16 @@ async function listConstraints(knex, table, schema = 'public') {
     [table, schema]
   );
 
-  return result.rows;
+  return result.map((row) => {
+    return {
+      constraintName: row.constraint_name,
+      columnName: row.column_name,
+      referencedTableName: row.referenced_table_name,
+      referencedColumnName: row.referenced_column_name,
+      onUpdate: row.on_update,
+      onDelete: row.on_delete,
+    };
+  });
 }
 
 async function getTableSchema(knex, table, schema = 'public') {
@@ -206,8 +245,8 @@ async function getTableSchema(knex, table, schema = 'public') {
   const foreignKeys = await listConstraints(knex, table, schema);
 
   const primaryKeys = indexes
-    .filter((idx) => idx.index_is_primary)
-    .map((idx) => idx.column_name);
+    .filter((idx) => idx.isPrimaryKey)
+    .map((idx) => idx.columnName);
 
   for (const col of columns) {
     if (primaryKeys.includes(col.name)) {
@@ -221,7 +260,7 @@ async function getTableSchema(knex, table, schema = 'public') {
     primaryKeys,
     sequenceName,
     foreignKeys,
-    indexes: indexes.filter((idx) => !idx.index_is_primary),
+    indexes: indexes.filter((idx) => !idx.isPrimaryKey),
     columns,
   };
 }

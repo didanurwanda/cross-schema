@@ -149,9 +149,10 @@ class CrossSchema {
    * @param {string} [schema] - The optional schema name (relevant for some databases like PostgreSQL).
    * @returns {Promise<Array<{
    *   name: string,              // Index name defined in the database
-   *   column_name: string,       // Column name the index refers to
-   *   index_is_unique: boolean,  // Whether the index enforces uniqueness
-   *   index_is_primary: boolean  // Whether the index is the primary key
+   *   columnName: string,       // Column name the index refers to
+   *   isUnique: boolean,  // Whether the index enforces uniqueness
+   *   isPrimaryKey: boolean  // Whether the index is the primary key
+   *   indexType: string
    * }>>} A promise resolving to an array of index definitions.
    *
    * @example
@@ -210,7 +211,9 @@ class CrossSchema {
    *   constraintName: string,
    *   columnName: string,
    *   referencedTableName: string,
-   *   referencedColumnName: string
+   *   referencedColumnName: string,
+   *   onUpdate: string,
+   *   onDelete: string
    * }>>}
    */
   async listConstraints(table, schema) {

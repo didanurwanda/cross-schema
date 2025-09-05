@@ -155,8 +155,9 @@ const version = await cs.getDatabaseVersion();
 {
   name: string,              // Index name defined in the database
   column_name: string,       // Column name the index refers to
-  index_is_unique: boolean,  // Whether the index enforces uniqueness
-  index_is_primary: boolean
+  isUnique: boolean,  // Whether the index enforces uniqueness
+  isPrimaryKey: boolean,
+  indexType: string
 }
 ```
 
@@ -167,7 +168,9 @@ const version = await cs.getDatabaseVersion();
   constraintName: string,
   columnName: string,
   referencedTableName: string,
-  referencedColumnName: string
+  referencedColumnName: string,
+  onUpdate: string,
+  onDelete: string
 }
 ```
 
